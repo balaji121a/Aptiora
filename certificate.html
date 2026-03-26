@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Certificate</title>
+
+<link rel="stylesheet" href="certificate.css">
+
+<!-- 🔥 LIBRARIES -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- 🎉 CONFETTI -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+</head>
+
+<body class="center">
+
+<div id="certificate" class="card">
+
+  <h2>CERTIFICATE</h2>
+
+  <p>This is to certify that</p>
+
+  <h1 id="name"></h1>
+
+  <p id="msg"></p>
+
+  <p>Date: <span id="date"></span></p>
+
+  <div class="signature">
+    <p>________________________</p>
+    <p>Authorized Signature</p>
+  </div>
+
+</div>
+
+<!-- 🔥 DOWNLOAD BUTTON -->
+<div style="text-align:center; margin-top:20px;">
+  <button onclick="downloadPDF()" style="
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    background:#3b82f6;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+  ">
+    ⬇ Download Certificate
+  </button>
+</div>
+
+<script>
+
+// ===== USER DATA =====
+let reg = localStorage.getItem("username");
+let rank = localStorage.getItem("rank");
+
+let users = {
+  "714524205005": "Balaji",
+  "714524205053": "Vicky",
+  "714524205027": "Ismail",
+  "714524205041": "Sakthivel"
+};
+
+// ===== NAME =====
+let name = users[reg] || "User";
+document.getElementById("name").innerText = name;
+
+// ===== MESSAGE =====
+if(rank && rank <= 3){
+  document.getElementById("msg").innerText =
+  "has secured Top " + rank + " in Assessment";
+}else{
+  document.getElementById("msg").innerText =
+  "has successfully completed the Assessment";
+}
+
+// ===== DATE =====
+document.getElementById("date").innerText =
+new Date().toLocaleDateString();
+
+
+// 🎉 CONFETTI FUNCTION
+function fireConfetti(){
+  confetti({
+    particleCount: 150,
+    spread: 80,
+    origin: { y: 0.6 }
+  });
+}
+
+
+// 🔥 PDF DOWNLOAD + ANIMATION + REDIRECT
+async function downloadPDF(){
+
+  // 🎉 Animation
+  fireConfetti();
+
+  const { jsPDF } = window.jspdf;
+
+  let element = document.getElementById("certificate");
+
+  let canvas = await html2canvas(element, {
+    scale: 2
+  });
+
+  let imgData = canvas.toDataURL("image/png");
+
+  let pdf = new jsPDF('landscape', 'px', [800, 600]);
+
+  pdf.addImage(imgData, 'PNG', 0, 0, 800, 600);
+
+  pdf.save("Certificate.pdf");
+
+  // ⏳ Redirect after 2 sec
+  setTimeout(()=>{
+    window.location.href="dashboard.html";
+  },2000);
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - APTIORA</title>
+
+<style>
+body {
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+  background:linear-gradient(-45deg,#667eea,#764ba2,#6dd5ed,#2193b0);
+  background-size:400% 400%;
+  animation:gradientMove 8s ease infinite;
+  transition:opacity 0.5s;
+}
+
+@keyframes gradientMove {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+#particles{
+  position:fixed;
+  width:100%;height:100%;
+  top:0;left:0;
+  z-index:1;
+}
+
+.login-container{
+  position:relative;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(12px);
+  padding:30px;
+  border-radius:12px;
+  width:320px;
+  text-align:center;
+  color:white;
+  z-index:10;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+.error-input{
+  border:2px solid red!important;
+  animation:shake 0.3s;
+}
+
+@keyframes shake{
+  0%{transform:translateX(0);}
+  25%{transform:translateX(-5px);}
+  50%{transform:translateX(5px);}
+  75%{transform:translateX(-5px);}
+  100%{transform:translateX(0);}
+}
+
+.password-box{position:relative;}
+.eye{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+}
+
+/* button */
+button{
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  border:none;
+  border-radius:6px;
+  color:white;
+  cursor:pointer;
+  background:linear-gradient(-45deg,#667eea,#764ba2,#6dd5ed,#2193b0);
+  background-size:400% 400%;
+  animation:btnGrad 5s infinite, glow 2s infinite alternate;
+}
+
+@keyframes btnGrad{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+@keyframes glow{
+  0%{box-shadow:0 0 10px rgba(102,126,234,0.4);}
+  50%{box-shadow:0 0 25px rgba(102,126,234,0.7);}
+  100%{box-shadow:0 0 10px rgba(102,126,234,0.4);}
+}
+
+/* ripple */
+button span{
+  position:absolute;
+  border-radius:50%;
+  transform:scale(0);
+  animation:ripple 0.6s linear;
+  background:rgba(255,255,255,0.6);
+}
+
+@keyframes ripple{
+  to{transform:scale(4);opacity:0;}
+}
+
+/* loading */
+.loading{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  border-radius:12px;
+  display:none;
+}
+
+.spinner{
+  border:4px solid #ccc;
+  border-top:4px solid #667eea;
+  border-radius:50%;
+  width:40px;height:40px;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{100%{transform:rotate(360deg);}}
+
+.success{color:lightgreen;display:none;}
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="login-container">
+
+<h2>APTIORA</h2>
+<p>Online Exam System</p>
+
+<input type="text" id="registerno" placeholder="Register No">
+
+<div class="password-box">
+  <input type="password" id="password" placeholder="Password">
+  <span class="eye" id="eye" onclick="togglePassword()">😳</span>
+</div>
+
+<button onclick="login(event)">Login</button>
+
+<p class="success" id="success">Login Successful ✅</p>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+</div>
+
+<script>
+
+// sounds
+const errorSound = new Audio("https://www.soundjay.com/buttons/beep-01a.mp3");
+const successSound = new Audio("https://www.soundjay.com/buttons/button-3.mp3");
+
+// users
+if(!localStorage.getItem("users")){
+  localStorage.setItem("users",JSON.stringify({
+    "714524205005":{name:"Balaji",password:"1234"},
+    "714524205053":{name:"Vicky",password:"1234"},
+    "714524205027":{name:"Ismail",password:"1234"},
+    "714524205041":{name:"Sakthivel",password:"1234"}
+  }));
+}
+
+// eye toggle
+function togglePassword(){
+  let pass=document.getElementById("password");
+  let eye=document.getElementById("eye");
+
+  if(pass.type==="password"){
+    pass.type="text";
+    eye.textContent="😣";
+  } else {
+    pass.type="password";
+    eye.textContent="😳";
+  }
+}
+
+// LOGIN
+function login(e){
+
+  const btn=e.currentTarget;
+
+  // ripple effect
+  const circle=document.createElement("span");
+  const rect=btn.getBoundingClientRect();
+  const size=Math.max(rect.width,rect.height);
+  circle.style.width=circle.style.height=size+"px";
+  circle.style.left=e.clientX-rect.left-size/2+"px";
+  circle.style.top=e.clientY-rect.top-size/2+"px";
+  btn.appendChild(circle);
+  setTimeout(()=>circle.remove(),600);
+
+  let reg=document.getElementById("registerno");
+  let pass=document.getElementById("password");
+  let loading=document.getElementById("loading");
+  let success=document.getElementById("success");
+
+  let users=JSON.parse(localStorage.getItem("users"));
+
+  if(users[reg.value] && users[reg.value].password===pass.value){
+
+    // ✅ FIXED STORAGE
+    localStorage.setItem("username", reg.value);
+    localStorage.setItem("name", users[reg.value].name);
+
+    successSound.play();
+    loading.style.display="flex";
+
+    setTimeout(()=>{
+      loading.style.display="none";
+      success.style.display="block";
+
+      setTimeout(()=>{
+        document.body.style.opacity="0";
+        setTimeout(()=>{
+          window.location.href="dashboard.html";
+        },500);
+      },1000);
+
+    },1500);
+
+  } else {
+
+    errorSound.play();
+    if(navigator.vibrate) navigator.vibrate(300);
+
+    reg.classList.add("error-input");
+    pass.classList.add("error-input");
+
+    reg.value="";
+    pass.value="";
+
+    setTimeout(()=>{
+      reg.classList.remove("error-input");
+      pass.classList.remove("error-input");
+    },1000);
+  }
+}
+
+// enter key
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter") login({
+    currentTarget:document.querySelector("button"),
+    clientX:window.innerWidth/2,
+    clientY:window.innerHeight/2
+  });
+});
+
+
+// ===== PARTICLES =====
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+
+let w=canvas.width=window.innerWidth;
+let h=canvas.height=window.innerHeight;
+
+const particles=[];
+const maxDist=120;
+
+function rand(min,max){return Math.random()*(max-min)+min;}
+
+class Particle{
+  constructor(){
+    this.x=rand(0,w);
+    this.y=rand(0,h);
+    this.r=rand(2,4);
+    this.dx=rand(-0.5,0.5);
+    this.dy=rand(-0.5,0.5);
+  }
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    ctx.fillStyle="white";
+    ctx.fill();
+  }
+  update(){
+    this.x+=this.dx;
+    this.y+=this.dy;
+
+    if(this.x<0)this.x=w;
+    if(this.x>w)this.x=0;
+    if(this.y<0)this.y=h;
+    if(this.y>h)this.y=0;
+
+    this.draw();
+  }
+}
+
+for(let i=0;i<60;i++) particles.push(new Particle());
+
+function connect(){
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      let dx=particles[i].x-particles[j].x;
+      let dy=particles[i].y-particles[j].y;
+      let dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<maxDist){
+        ctx.strokeStyle="rgba(255,255,255,"+(1-dist/maxDist)+")";
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  particles.forEach(p=>p.update());
+  connect();
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+</script>
+
+</body>
+</html>

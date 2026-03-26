@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Poppins;
+  background:#f5f7fb;
+  transition:0.4s;
+}
+
+/* 🌙 DARK MODE */
+.dark{
+  background:#020617;
+  color:#e0f2fe;
+}
+
+.dark .card{ background:#0f172a; }
+.dark .sidebar{ background:#020617; }
+.dark .option{ border-color:#0ea5e9; }
+.dark .option:hover{ background:#0ea5e9; color:white; }
+
+/* TIMER */
+.timer{
+  position:fixed;
+  top:10px;
+  left:10px;
+  background:#000;
+  color:#00ffff;
+  padding:8px 14px;
+  border-radius:10px;
+  font-weight:bold;
+  display:none;
+}
+
+/* LAYOUT */
+.main{ display:flex; }
+
+.sidebar{
+  width:80px;
+  background:#fff;
+  padding:10px;
+  height:100vh;
+  overflow-y:auto;
+}
+
+.qbox{
+  width:40px;
+  height:40px;
+  margin:8px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+  background:#ddd;
+  cursor:pointer;
+}
+.qbox.active{ background:#3b82f6; color:white; }
+.qbox.saved{ background:green; color:white; }
+
+.content{ flex:1; padding:20px; }
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  margin-top:15px;
+}
+
+.option{
+  margin:10px 0;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  cursor:pointer;
+}
+.option:hover{ background:#e0f2fe; }
+.selected{ background:#bbf7d0; }
+
+.btns{
+  margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.next{ background:#3b82f6; color:white; }
+.prev{ background:#999; color:white; }
+.end-btn{ background:red; color:white; }
+
+.bottom{ margin-top:10px; }
+
+.fade-out{
+  opacity:0;
+  transform:scale(0.95);
+}
+</style>
+</head>
+
+<body>
+
+<div id="timerBox" class="timer">45:00</div>
+
+<div class="main">
+
+<div class="sidebar" id="numbers"></div>
+
+<div class="content">
+
+<div class="top">
+  <h3 id="title"></h3>
+
+  <div>
+    🌙 <input type="checkbox" onchange="toggleMode()">
+    <button class="end-btn" onclick="endTest()">End Test</button>
+  </div>
+</div>
+
+<div class="card">
+  <h4 id="question"></h4>
+  <div id="options"></div>
+
+  <div class="btns">
+    <button class="prev" onclick="prevQ()">Previous</button>
+    <button class="next" onclick="nextQ()">Next</button>
+  </div>
+</div>
+
+<div class="bottom">
+  Saved: <span id="saved">0</span> |
+  Remaining: <span id="remain">0</span>
+</div>
+
+</div>
+</div>
+
+<script>
+
+// MODE
+let mode = localStorage.getItem("mode") || "practice";
+let topic = localStorage.getItem("topic") || "Verbal Ability";
+
+let answerKey = "answers_" + topic;
+let answers = JSON.parse(localStorage.getItem(answerKey)) || {};
+
+if(mode === "assessment" && localStorage.getItem("allowTest") === "yes"){
+  startTimer();
+  document.body.classList.add("dark");
+}
+
+function toggleMode(){
+  document.body.classList.toggle("dark");
+}
+
+// TIMER
+function startTimer(){
+  let time = 45*60;
+  let box = document.getElementById("timerBox");
+  box.style.display="block";
+
+  setInterval(()=>{
+    let m = Math.floor(time/60);
+    let s = time%60;
+    box.innerText=(m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
+    time--;
+    if(time<0){
+      alert("Time Up!");
+      endTest();
+    }
+  },1000);
+}
+
+// QUESTIONS
+let questions = [];
+let correctAnswers = [];
+
+if(mode==="assessment" && localStorage.getItem("allowTest")==="yes"){
+
+questions = [
+{q:"2+3=?",o:["4","5","6","7"]},
+{q:"5x2=?",o:["10","12","8","15"]},
+{q:"7+8=?",o:["14","15","16","13"]},
+{q:"√16=?",o:["2","4","8","6"]},
+{q:"10-4=?",o:["5","6","7","4"]},
+{q:"1,1,2,3,5?",o:["6","7","8","9"]},
+{q:"6,12,24?",o:["36","48","60","72"]},
+{q:"4x4=?",o:["8","12","16","14"]},
+{q:"9÷3=?",o:["2","3","4","1"]},
+{q:"10,20,40?",o:["60","80","100","120"]},
+{q:"Happy synonym?",o:["Sad","Joyful","Cry","Angry"]},
+{q:"Big antonym?",o:["Large","Small","Huge","Wide"]},
+{q:"Fast synonym?",o:["Quick","Slow","Late","Stop"]},
+{q:"Child plural?",o:["Childs","Children","Childes","Child"]},
+{q:"Verb?",o:["Run","Blue","Table","Chair"]},
+{q:"Correct tense?",o:["I eat","I ate","I eating","I eats"]},
+{q:"3²=?",o:["6","9","12","3"]},
+{q:"Series:2,4,8?",o:["10","12","16","18"]},
+{q:"Series:3,9,27?",o:["30","81","18","54"]},
+{q:"Series:5,10,20?",o:["30","35","40","50"]}
+];
+
+correctAnswers = [
+1,0,1,1,1,
+2,1,2,1,1,
+1,1,0,1,0,
+1,1,2,1,2
+];
+
+title.innerText="Assessment Test";
+}
+
+else if(topic==="Verbal Ability"){
+questions = [
+{q:"Synonym of Happy",o:["Sad","Joyful","Angry","Cry"]},
+{q:"Antonym of Big",o:["Large","Huge","Small","Wide"]},
+{q:"Plural of Child",o:["Childs","Children","Childes","Child"]},
+{q:"Verb?",o:["Run","Blue","Table","Chair"]},
+{q:"Correct tense?",o:["I eat","I ate","I eating","I eats"]},
+{q:"Synonym of Fast",o:["Quick","Slow","Late","Stop"]},
+{q:"Antonym of Hot",o:["Warm","Cold","Heat","Fire"]},
+{q:"Correct sentence",o:["He go","He goes","He going","He gone"]},
+{q:"She ___ playing",o:["is","are","am","be"]},
+{q:"Choose spelling",o:["Receive","Recieve","Receeve","Receve"]}
+];
+title.innerText="Verbal Ability";
+}
+
+else if(topic==="Algebra"){
+questions = [
+{q:"2+3=?",o:["4","5","6","7"]},
+{q:"5x2=?",o:["10","12","8","15"]},
+{q:"10-4=?",o:["5","6","7","4"]},
+{q:"x+2=5",o:["2","3","4","5"]},
+{q:"3²=?",o:["6","9","12","3"]},
+{q:"√16=?",o:["2","4","8","6"]},
+{q:"7+8=?",o:["14","15","16","13"]},
+{q:"9÷3=?",o:["2","3","4","1"]},
+{q:"4x4=?",o:["8","12","16","14"]},
+{q:"6+7=?",o:["12","13","14","11"]}
+];
+title.innerText="Algebra";
+}
+
+else{
+questions = [
+{q:"2,4,8?",o:["10","12","16","18"]},
+{q:"3,9,27?",o:["30","81","18","54"]},
+{q:"5,10,20?",o:["30","35","40","50"]},
+{q:"7,14,28?",o:["30","56","60","40"]},
+{q:"1,1,2,3,5?",o:["6","7","8","9"]},
+{q:"10,20,40?",o:["60","80","100","120"]},
+{q:"6,12,24?",o:["36","48","60","72"]},
+{q:"9,18,36?",o:["45","54","72","81"]},
+{q:"2,6,18?",o:["36","54","72","108"]},
+{q:"4,8,16?",o:["20","24","32","40"]}
+];
+title.innerText="Series";
+}
+
+// LOGIC
+let current = 0;
+
+function loadNumbers(){
+  let html="";
+  for(let i=0;i<questions.length;i++){
+    let cls="qbox";
+    if(i===current) cls+=" active";
+    if(answers[i]!==undefined) cls+=" saved";
+    html+=`<div class="${cls}" onclick="goQ(${i})">${i+1}</div>`;
+  }
+  numbers.innerHTML=html;
+}
+
+function loadQ(){
+  question.innerText=(current+1)+". "+questions[current].q;
+
+  let ops="";
+  questions[current].o.forEach((opt,i)=>{
+    let sel = answers[current]===i?"selected":"";
+    ops+=`<div class="option ${sel}" onclick="selectAns(${i})">${opt}</div>`;
+  });
+
+  options.innerHTML=ops;
+  updateBottom();
+  loadNumbers();
+}
+
+function selectAns(i){
+  answers[current]=i;
+  localStorage.setItem(answerKey, JSON.stringify(answers));
+  loadQ();
+}
+
+function nextQ(){ if(current<questions.length-1){current++;loadQ();}}
+function prevQ(){ if(current>0){current--;loadQ();}}
+function goQ(i){ current=i; loadQ(); }
+
+function updateBottom(){
+  saved.innerText=Object.keys(answers).length;
+  remain.innerText=questions.length-Object.keys(answers).length;
+}
+
+// END TEST
+function endTest(){
+  document.body.classList.add("fade-out");
+
+  setTimeout(()=>{
+
+    if(mode==="assessment" && localStorage.getItem("allowTest")==="yes"){
+
+      let reg = localStorage.getItem("username");
+
+      let users = {
+        "714524205005": "Balaji",
+        "714524205053": "Vicky",
+        "714524205027": "Ismail",
+        "714524205041": "Sakthivel"
+      };
+
+      let name = users[reg] || "User";
+
+      let score = 0;
+      for(let i=0;i<questions.length;i++){
+        if(answers[i] === correctAnswers[i]){
+          score++;
+        }
+      }
+
+      let board = JSON.parse(localStorage.getItem("leaderboard")) || [];
+      board.push({name:name, score:score});
+      localStorage.setItem("leaderboard", JSON.stringify(board));
+
+      localStorage.removeItem(answerKey);
+      localStorage.removeItem("allowTest");
+      localStorage.removeItem("mode");
+
+      window.location.href="dashboard.html";
+
+    }else{
+      window.location.href="aptitude.html";
+    }
+
+  },400);
+}
+
+loadQ();
+
+</script>
+
+</body>
+</html>

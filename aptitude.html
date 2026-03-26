@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Aptitude Course</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#f5f7fb;
+  transition:0.3s;
+
+  /* 🔥 PAGE LOAD ANIMATION */
+  opacity:0;
+  transform:translateY(20px);
+  animation:pageEnter 0.8s ease forwards;
+}
+
+@keyframes pageEnter{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* 🌙 DARK MODE */
+.dark{
+  background:#020617 !important;
+  color:white;
+}
+
+.dark .course-card{
+  background:#0f172a;
+  color:white;
+}
+
+.dark .navbar{
+  background:#020617;
+}
+
+.dark .course-table th{
+  background:#020617;
+}
+
+/* NAVBAR */
+.navbar{
+  background:#2b6cb0;
+  color:white;
+  padding:12px 20px;
+  text-align:center;
+  font-weight:bold;
+  position:relative;
+}
+
+/* 🌙 TOGGLE BUTTON */
+.mode-btn{
+  position:absolute;
+  right:60px;
+  top:10px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.profile{
+  position:absolute;
+  right:20px;
+  top:10px;
+  background:white;
+  color:#2b6cb0;
+  border-radius:50%;
+  width:35px;
+  height:35px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.container{
+  padding:20px;
+}
+
+/* 🔥 CARD DROP ANIMATION */
+.course-card{
+  background:white;
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom:20px;
+  text-align:center;
+
+  opacity:0;
+  transform:translateY(40px);
+  animation:cardDrop 0.8s ease forwards;
+}
+
+.course-card:nth-child(1){ animation-delay:0.2s; }
+.course-card:nth-child(2){ animation-delay:0.5s; }
+
+@keyframes cardDrop{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.course-img{
+  width:80px;
+  height:80px;
+  background:#ddd;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  margin:auto;
+}
+
+.progress-circle{
+  margin-top:10px;
+  font-weight:bold;
+  font-size:20px;
+}
+
+/* TABLE */
+.course-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.course-table th{
+  text-align:left;
+  padding:12px;
+  background:#2b6cb0;
+  color:white;
+}
+
+.course-table td{
+  padding:12px;
+  border-bottom:1px solid #ddd;
+}
+
+/* 🔥 ROW ANIMATION */
+tbody tr{
+  opacity:0;
+  transform:translateY(20px);
+  animation:rowFade 0.6s ease forwards;
+}
+
+tbody tr:nth-child(1){ animation-delay:0.6s; }
+tbody tr:nth-child(2){ animation-delay:0.8s; }
+tbody tr:nth-child(3){ animation-delay:1s; }
+
+@keyframes rowFade{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.topic-cell{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.schedule-cell{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.schedule-cell div{
+  line-height:1.3;
+  font-size:13px;
+}
+
+/* PROGRESS BAR */
+.progress-bar{
+  width:100%;
+  height:8px;
+  background:#ddd;
+  border-radius:10px;
+}
+
+.progress{
+  height:100%;
+  background:#3b82f6;
+  width:0%;
+  border-radius:10px;
+}
+
+/* 🔥 BUTTON */
+.start-btn{
+  padding:6px 14px;
+  border:none;
+  border-radius:8px;
+  background:rgba(59,130,246,0.7);
+  color:white;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  box-shadow:0 0 10px rgba(59,130,246,0.6);
+  transition:0.3s;
+}
+
+.start-btn:hover{
+  box-shadow:0 0 20px rgba(59,130,246,1);
+  transform:scale(1.05);
+}
+
+/* 🔥 CLICK FADE OUT */
+.fade-out{
+  opacity:0 !important;
+  transform:translateY(-20px) !important;
+  transition:0.5s;
+}
+
+.start-btn:disabled{
+  background:#999;
+  box-shadow:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+  📘 Aptitude Course
+  <span class="mode-btn" onclick="toggleMode()">🌙</span>
+  <div class="profile" id="icon"></div>
+</div>
+
+<div class="container">
+
+<div class="course-card">
+  <div class="course-img">📊</div>
+  <h3>APTITUDE COURSE</h3>
+  <div>📅 Start: 25 Mar 2026</div>
+  <div>📅 End: 05 Apr 2026</div>
+  <div class="progress-circle" id="totalProgress">0%</div>
+</div>
+
+<div class="course-card">
+
+<table class="course-table">
+<thead>
+<tr>
+<th>Topic</th>
+<th>Schedule</th>
+<th>Progress</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>
+<div class="topic-cell">
+<span id="l1">🔓</span>
+<span>Verbal Ability</span>
+</div>
+</td>
+
+<td>
+<div class="schedule-cell">
+<span>🗓️</span>
+<div>
+<div>25 Mar 2026</div>
+<div>05 Apr 2026</div>
+</div>
+</div>
+</td>
+
+<td>
+<div class="progress-bar">
+<div id="p1" class="progress"></div>
+</div>
+</td>
+
+<td>
+<button id="b1" class="start-btn" onclick="startTopic(1)">Start</button>
+</td>
+</tr>
+
+<tr>
+<td>
+<div class="topic-cell">
+<span id="l2">🔒</span>
+<span>Algebra</span>
+</div>
+</td>
+
+<td>
+<div class="schedule-cell">
+<span>🗓️</span>
+<div>
+<div>25 Mar 2026</div>
+<div>05 Apr 2026</div>
+</div>
+</div>
+</td>
+
+<td>
+<div class="progress-bar">
+<div id="p2" class="progress"></div>
+</div>
+</td>
+
+<td>
+<button id="b2" class="start-btn" onclick="startTopic(2)" disabled>Start</button>
+</td>
+</tr>
+
+<tr>
+<td>
+<div class="topic-cell">
+<span id="l3">🔒</span>
+<span>Series & Sequence</span>
+</div>
+</td>
+
+<td>
+<div class="schedule-cell">
+<span>🗓️</span>
+<div>
+<div>25 Mar 2026</div>
+<div>05 Apr 2026</div>
+</div>
+</div>
+</td>
+
+<td>
+<div class="progress-bar">
+<div id="p3" class="progress"></div>
+</div>
+</td>
+
+<td>
+<button id="b3" class="start-btn" onclick="startTopic(3)" disabled>Start</button>
+</td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+// PROFILE
+let reg = localStorage.getItem("username");
+
+let users = {
+  "714524205005": "Balaji",
+  "714524205053": "Vicky",
+  "714524205027": "Ismail",
+  "714524205041": "Sakthivel"
+};
+
+let name = users[reg] || "U";
+document.getElementById("icon").innerText = name.charAt(0);
+
+// RESET
+localStorage.removeItem("testCompleted");
+document.getElementById("b1").disabled = false;
+document.getElementById("b1").innerText = "Start";
+
+// PROGRESS
+checkUnlock();
+
+function updateTotal(){
+  let p1 = parseInt(localStorage.getItem("p1_done")) || 0;
+  let p2 = parseInt(localStorage.getItem("p2_done")) || 0;
+  let p3 = parseInt(localStorage.getItem("p3_done")) || 0;
+
+  let percent = Math.floor((p1+p2+p3)/3);
+  document.getElementById("totalProgress").innerText = percent + "%";
+}
+updateTotal();
+
+// 🔥 START WITH ANIMATION
+function startTopic(id){
+
+  document.body.classList.add("fade-out");
+
+  setTimeout(()=>{
+    let topics = ["Verbal Ability","Algebra","Series & Sequence"];
+    localStorage.setItem("topic", topics[id-1]);
+    localStorage.setItem("mode", "practice");
+    window.location.href = "test.html";
+  },500);
+}
+
+// UNLOCK
+function checkUnlock(){
+  let p1 = parseInt(localStorage.getItem("p1_done")) || 0;
+  let p2 = parseInt(localStorage.getItem("p2_done")) || 0;
+  let p3 = parseInt(localStorage.getItem("p3_done")) || 0;
+
+  document.getElementById("p1").style.width = p1 + "%";
+  document.getElementById("p2").style.width = p2 + "%";
+  document.getElementById("p3").style.width = p3 + "%";
+
+  if(p1 === 100){
+    document.getElementById("l2").innerText="🔓";
+    document.getElementById("b2").disabled=false;
+  }
+
+  if(p2 === 100){
+    document.getElementById("l3").innerText="🔓";
+    document.getElementById("b3").disabled=false;
+  }
+}
+
+// DARK MODE
+function toggleMode(){
+  document.body.classList.toggle("dark");
+}
+
+</script>
+
+</body>
+</html>
